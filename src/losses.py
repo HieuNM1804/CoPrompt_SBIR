@@ -78,5 +78,17 @@ def loss_fn(args, model, features, mode='train'):
     loss_photo_skt = cross_loss(photo_features, sk_features, args)
     
     loss_distill = loss_distill_photo + loss_distill_sk
+    
+    loss_ce = loss_ce_photo + loss_ce_sk
 
-    return loss_triplet + loss_photo_skt + loss_distill + (loss_ce_photo + loss_ce_sk) + loss_mcc
+    total_loss = args.w_triplet * loss_triplet + args.w_photo_skt * loss_photo_skt + args.w_distill * loss_distill + args.w_ce * (loss_ce) + args.w_mcc * loss_mcc
+    
+    loss_dict = {
+        "loss_triplet": loss_triplet,
+        "loss_photo_skt": loss_photo_skt,
+        "loss_distill": loss_distill,
+        "loss_ce": loss_ce,
+        "loss_mcc": loss_mcc
+    }
+    
+    return total_loss, loss_dict

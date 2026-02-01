@@ -142,8 +142,12 @@ class ZS_SBIR(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         features = self.forward(batch)
         
-        loss = loss_fn(self.args, self.model, features=features, mode='train')
+        loss, loss_dict = loss_fn(self.args, self.model, features=features, mode='train')
         self.log('train_loss', loss, on_step=False, on_epoch=True)
+        
+        for k, v in loss_dict.items():
+            self.log(k, v, on_step=False, on_epoch=True)
+            
         return loss
     
     def validation_step(self, batch, batch_idx, dataloader_idx):
