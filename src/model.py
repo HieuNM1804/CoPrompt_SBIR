@@ -216,5 +216,12 @@ class ZS_SBIR(pl.LightningModule):
 
         if train_loss is not None:
             print(f"Train loss (epoch avg): {train_loss.item():.6f}")
+            
+        keys = ["loss_triplet", "loss_photo_skt", "loss_distill", "loss_ce", "loss_mcc"]
+        for k in keys:
+            loss_val = self.trainer.callback_metrics.get(k, None)
+            if loss_val is not None:
+                print(f"{k}: {loss_val.item():.6f}")
+
         self.val_step_outputs_sk.clear()
         self.val_step_outputs_ph.clear()
