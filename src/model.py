@@ -173,6 +173,11 @@ class ZS_SBIR(pl.LightningModule):
         gallery = gallery_feat_all
         ap = torch.zeros(len(query_feat_all))
         precision = torch.zeros(len(query_feat_all))
+        
+        # Track per-class accuracy
+        class_correct = {}
+        class_total = {}
+        
         if self.args.dataset == "sketchy_2":
             map_k = 200
             p_k = 200
@@ -188,6 +193,18 @@ class ZS_SBIR(pl.LightningModule):
             distance = self.distance_fn(sk_feat.unsqueeze(0), gallery)
             target = torch.zeros(len(gallery), dtype=torch.bool, device=device)
             target[np.where(all_photo_category == category)] = True
+            
+            # Get top-1 predicted class
+            top1_idx = distance.argmax().item()
+            predicted_class = all_photo_category[top1_idx]
+            
+            # Track per-class statistics
+            if category not in class_total:
+                class_total[category] = 0
+                class_correct[category] = 0
+            class_total[category] += 1
+            if predicted_class == category:
+                class_correct[category] += 1
             
             if map_k != 0:
                 top_k_actual = min(map_k, len(gallery)) 
@@ -224,6 +241,18 @@ class ZS_SBIR(pl.LightningModule):
             loss_val = self.trainer.callback_metrics.get(k, None)
             if loss_val is not None:
                 print(f"{k}: {loss_val.item():.6f}")
+        
+        # Analyze per-class performance
+        class_acc = {cat: (class_correct[cat] / class_total[cat]) if class_total[cat] > 0 else 0 
+                     for cat in class_total.keys()}
+        
+        # Sort by accuracy (ascending) to find worst performing classes
+        sorted_classes = sorted(class_acc.items(), key=lambda x: x[1])
+        
+        print("\nTop 10 worst performing classes:")
+        for i, (cat_idx, acc) in enumerate(sorted_classes[:10]):
+            class_name = self.classname[cat_idx] if cat_idx < len(self.classname) else f"Class_{cat_idx}"
+            print(f"  {i+1}. {class_name}: {acc:.2%} ({class_correct[cat_idx]}/{class_total[cat_idx]})")
         
         # Force flush stdout
         import sys
