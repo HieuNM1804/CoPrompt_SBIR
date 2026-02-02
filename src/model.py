@@ -208,6 +208,8 @@ class ZS_SBIR(pl.LightningModule):
         if self.global_step > 0:
             self.best_metric = self.best_metric if  (self.best_metric > mAP.item()) else mAP.item()
         
+        print(f"\nEpoch: {self.current_epoch + 1}/{self.trainer.max_epochs}")
+        
         if map_k != 0:
             print('mAP@{}: {}, P@{}: {}, Best mAP: {}'.format(map_k, mAP.item(), p_k, precision, self.best_metric))
         else:
@@ -222,6 +224,10 @@ class ZS_SBIR(pl.LightningModule):
             loss_val = self.trainer.callback_metrics.get(k, None)
             if loss_val is not None:
                 print(f"{k}: {loss_val.item():.6f}")
+        
+        # Force flush stdout
+        import sys
+        sys.stdout.flush()
 
         self.val_step_outputs_sk.clear()
         self.val_step_outputs_ph.clear()

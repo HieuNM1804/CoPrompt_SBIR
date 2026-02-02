@@ -63,13 +63,13 @@ if __name__ == "__main__":
     parser.add_argument("--beta", type=float, default=0.1)
     parser.add_argument("--lambd", type=float, default=0.1)
     
-    parser.add_argument("--w_triplet", type=float, default=1.0)
+    parser.add_argument("--w_triplet", type=float, default=100.0)
     parser.add_argument("--w_photo_skt", type=float, default=1.0)
-    parser.add_argument("--w_distill", type=float, default=2.0)
-    parser.add_argument("--w_ce", type=float, default=0.1)
+    parser.add_argument("--w_distill", type=float, default=10.0)
+    parser.add_argument("--w_ce", type=float, default=1.0)
     parser.add_argument("--w_mcc", type=float, default=1.0)
     
-    parser.add_argument("--lr", type=float, default=0.035)
+    parser.add_argument("--lr", type=float, default=0.001)
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--test_batch_size', type=int, default=256)
     parser.add_argument('--epochs', type=int, default=60)
